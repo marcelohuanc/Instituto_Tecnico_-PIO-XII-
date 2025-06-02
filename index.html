@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instituto Técnico "PIO XII"</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #eaeaea;
+      overflow-x: hidden;
+    }
+
+    .barra-superior {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: rgba(0, 0, 0, 0);
+      padding: 10px 30px;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(1px);
+      -webkit-backdrop-filter: blur(1px);
+      z-index: 1000;
+    }
+
+    .barra-superior img {
+      height: 80px;
+    }
+
+    nav {
+      display: flex;
+      gap: 15px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      background-color: white;
+      color: #34495e;
+    }
+
+    #animation-container {
+      width: 100%;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      z-index: 1;
+      transition: background-image 1s ease-in-out;
+    }
+
+    .titulo-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 15px;
+      color: white;
+    }
+
+    .titulo-box h1 {
+      font-size: 48px;
+      margin: 0;
+    }
+
+    .titulo-box p {
+      font-size: 20px;
+    }
+
+    .boton-recorrido {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #3498db;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      text-decoration: none;
+    }
+
+    .boton-recorrido:hover {
+      background-color: #2980b9;
+      transform: scale(1.05);
+    }
+
+    section {
+      padding: 40px 20px;
+      text-align: center;
+      background-color: white;
+    }
+
+    section h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    footer {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Barra superior -->
+<div class="barra-superior">
+  <img src="escudo.png" alt="Escudo del Instituto">
+  <nav>
+    <a href="#">Inicio</a>
+    <a href="#nosotros">Nosotros</a>
+    <a href="#galeria">Galería</a>
+    <a href="#mision">Misión y Visión</a>
+    <a href="#contacto">Contacto</a>
+  </nav>
+</div>
+
+<!-- Contenedor principal con título y fondo -->
+<div id="animation-container">
+  <div class="titulo-box">
+    <h1>Instituto Técnico "PIO XII"</h1>
+    <p>Educación Técnica para el Futuro</p>
+    <a href="#nosotros" class="boton-recorrido">Recorrido 3D</a>
+  </div>
+</div>
+
+<!-- Secciones -->
+<section id="nosotros">
+  <h2>Nosotros</h2>
+  <p>El Instituto Técnico PIO XII forma profesionales técnicos con ética, responsabilidad y alto nivel académico, preparados para enfrentar los desafíos del futuro.</p>
+</section>
+
+<section id="galeria">
+  <h2>Galería</h2>
+  <p>Aquí podrás ver imágenes de nuestros talleres, aulas y actividades académicas (próximamente).</p>
+</section>
+
+<section id="mision">
+  <h2>Misión y Visión</h2>
+  <p><strong>Misión:</strong> Brindar formación técnica integral, innovadora y comprometida con el desarrollo social.</p>
+  <p><strong>Visión:</strong> Ser un referente nacional en educación técnica de calidad.</p>
+</section>
+
+<section id="contacto">
+  <h2>Contacto</h2>
+  <p>Dirección: Llallagua, Potosí, Bolivia</p>
+  <p>Email: contacto@pioxii.edu.bo</p>
+  <p>Teléfono: +591 67812345</p>
+</section>
+
+<!-- Pie de página -->
+<footer>
+  &copy; 2025 Instituto Técnico PIO XII - Todos los derechos reservados
+</footer>
+
+<!-- Animación Three.js -->
+<script>
+  let scene, camera, renderer, platform;
+
+  function crearPlataforma() {
+    const geometry = new THREE.BoxGeometry(5, 0.2, 5);
+    const material = new THREE.MeshPhongMaterial({ color: 0x3498db });
+    platform = new THREE.Mesh(geometry, material);
+    platform.position.y = -1;
+    scene.add(platform);
+  }
+
+  function init() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(5, 5, 5);
+    camera.lookAt(0, 0, 0);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById("animation-container").appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 10, 7.5);
+    scene.add(directionalLight);
+
+    crearPlataforma();
+    animate();
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    platform.rotation.y += 0.005;
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  init();
+</script>
+
+<!-- Script para cambiar fondo automáticamente -->
+<script>
+  const fondo = document.getElementById('animation-container');
+  const imagenes = ['la1.jpeg', 'la2.jpeg', 'la3.jpeg']; // Agrega tus imágenes aquí
+  let indice = 0;
+
+  fondo.style.backgroundImage = `url('${imagenes[indice]}')`;
+
+  function cambiarFondo() {
+    indice = (indice + 1) % imagenes.length;
+    fondo.style.backgroundImage = `url('${imagenes[indice]}')`;
+  }
+
+  setInterval(cambiarFondo, 6000); // Cambio a 4 segundos
+</script>
+
+</body>
+</html>
