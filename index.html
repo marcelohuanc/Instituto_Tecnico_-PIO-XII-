@@ -1,244 +1,1044 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Instituto Técnico "PIO XII"</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #eaeaea;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Instituto Técnico "PIO XII" con Modelos 3D</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- Añadimos el script para GLTFLoader y OrbitControls -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+<style>
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #eaeaea;
+  overflow-x: hidden;
+}
 
-    .barra-superior {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background-color: rgba(0, 0, 0, 0);
-      padding: 10px 30px;
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      border-radius: 20px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(1px);
-      -webkit-backdrop-filter: blur(1px);
-      z-index: 1000;
-    }
+/* Barra superior */
+.barra-superior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(0,0,0,0);
+  padding: 10px 30px;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+  z-index: 1000;
+}
+.barra-superior img {
+  height: 80px;
+}
 
-    .barra-superior img {
-      height: 80px;
-    }
+nav {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
-    nav {
-      display: flex;
-      gap: 15px;
-    }
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 18px;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      background-color: rgba(255, 255, 255, 0.2);
-      padding: 10px 15px;
-      border-radius: 5px;
-      transition: 0.3s;
-    }
+nav a:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: #2c3e50;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
 
-    nav a:hover {
-      background-color: white;
-      color: #34495e;
-    }
+/* Contenedor inicial */
+#animation-container {
+  width: 100%;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  z-index: 1;
+  transition: background-image 1s ease-in-out;
+}
 
-    #animation-container {
-      width: 100%;
-      height: 100vh;
-      background-size: cover;
-      background-position: center;
-      position: relative;
-      z-index: 1;
-      transition: background-image 1s ease-in-out;
-    }
+/* ESCUDO GIRATORIO EN ESQUINA IZQUIERDA */
+#escudoCanvas {
+  position: absolute;
+  top: 100px;
+  left: 50px;
+  width: 100px;
+  height: 100px;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
+  z-index: 10;
+}
 
-    .titulo-box {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 30px;
-      border-radius: 15px;
-      color: white;
-    }
+.titulo-box {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-color: rgba(0,0,0,0.6);
+  padding: 30px;
+  border-radius: 15px;
+  color: white;
+}
 
-    .titulo-box h1 {
-      font-size: 48px;
-      margin: 0;
-    }
+.titulo-box h1 { font-size: 48px; margin: 0; }
+.titulo-box p { font-size: 20px; }
+.boton-recorrido {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(45deg, #3498db, #2980b9);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-decoration: none;
+}
 
-    .titulo-box p {
-      font-size: 20px;
-    }
+.titulo-box p { 
+  font-size: 20px; 
+  margin: 10px 0 20px 0;
+  opacity: 0.9;
+}
 
-    .boton-recorrido {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 25px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #3498db;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-      text-decoration: none;
-    }
+.boton-recorrido {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
 
-    .boton-recorrido:hover {
-      background-color: #2980b9;
-      transform: scale(1.05);
-    }
+.boton-recorrido:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
 
-    section {
-      padding: 40px 20px;
-      text-align: center;
-      background-color: white;
-    }
+/* Sistema de Modales */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
 
-    section h2 {
-      color: #2c3e50;
-      margin-bottom: 20px;
-    }
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
 
-    footer {
-      background-color: #2c3e50;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-  </style>
+.modal-content {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 800px; /* Más ancho para acomodar imágenes */
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.3);
+  transform: scale(0.7) translateY(50px);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1) translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(52, 152, 219, 0.2);
+}
+
+.modal-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #7f8c8d;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  color: #34495e;
+  line-height: 1.6;
+}
+
+/* Estilos para imágenes en modales */
+.modal-imagen {
+  width: 100%;
+  max-height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 15px 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.modal-imagen-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.modal-imagen-descripcion {
+  font-style: italic;
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.modal-body h3 {
+  color: #2980b9;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-size: 22px;
+}
+
+.modal-body p {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.modal-body ul {
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+
+.modal-body li {
+  font-size: 16px;
+  margin-bottom: 8px;
+  padding-left: 10px;
+}
+
+/* Animaciones especiales para diferentes modales */
+.modal-content.informacion {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(255,255,255,0.95));
+}
+
+.modal-content.carreras {
+  background: linear-gradient(135deg, rgba(155, 89, 182, 0.1), rgba(255,255,255,0.95));
+}
+
+.modal-content.infraestructura {
+  background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(255,255,255,0.95));
+}
+
+.modal-content.convenios {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(255,255,255,0.95));
+}
+
+.modal-content.contacto {
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(255,255,255,0.95));
+}
+
+/* Scrollbar personalizada para modales */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(52, 152, 219, 0.5);
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(52, 152, 219, 0.8);
+}
+
+/* Estilos para el contenedor 3D */
+#recorrido3D {
+  display: none;
+  width: 100%;
+  height: 100vh;
+  position: relative;
+}
+
+/* Botón volver */
+#boton-volver {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 100;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+#boton-volver:hover {
+  background: rgba(0,0,0,0.8);
+  transform: scale(1.05);
+}
+
+/* Selector de modelos */
+.model-selector {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  background: rgba(0,0,0,0.6);
+  padding: 10px;
+  border-radius: 10px;
+  z-index: 100;
+}
+
+.model-btn {
+  padding: 8px 15px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.model-btn:hover {
+  background: rgba(255,255,255,0.4);
+}
+
+.model-btn.active {
+  background: rgba(52, 152, 219, 0.8);
+}
+
+/* Indicador de carga */
+.loading-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 18px;
+  background: rgba(0,0,0,0.7);
+  padding: 15px 25px;
+  border-radius: 10px;
+  z-index: 50;
+  display: none;
+}
+
+/* Instrucciones para controles */
+.controls-info {
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  background: rgba(0,0,0,0.6);
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 14px;
+  z-index: 100;
+  text-align: center;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 20px;
+    padding: 20px;
+    width: calc(100% - 40px);
+  }
+  
+  .modal-title {
+    font-size: 24px;
+  }
+  
+  .barra-superior {
+    width: 95%;
+    padding: 8px 15px;
+  }
+  
+  nav {
+    gap: 8px;
+  }
+  
+  nav a {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  
+  .model-selector {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 90%;
+  }
+  
+  /* Escudo más pequeño en móviles */
+  #escudoCanvas {
+    width: 70px;
+    height: 70px;
+    top: 10px;
+    left: 10px;
+  }
+  
+  .controls-info {
+    bottom: 100px;
+    font-size: 12px;
+    width: 90%;
+  }
+}
+
+/* Footer (mantenido simple) */
+footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #34495e;
+  color: white;
+  margin-top: 50px;
+}
+</style>
 </head>
 <body>
 
-<!-- Barra superior -->
 <div class="barra-superior">
-  <img src="escudo.png" alt="Escudo del Instituto">
+  <img src="https://cdn.glitch.global/e4e5328a-6ea7-44c3-8645-7b8bdede761c/escudo.png?v=1751781706276" alt="Escudo del Instituto">
   <nav>
-    <a href="#">Inicio</a>
-    <a href="#nosotros">Nosotros</a>
-    <a href="#galeria">Galería</a>
-    <a href="#mision">Misión y Visión</a>
-    <a href="#contacto">Contacto</a>
+    <a onclick="volverAlInicio()"> Inicio</a>
+    <a onclick="openModal('informacion')"> Información</a>
+    <a onclick="openModal('carreras')"> Carreras</a>
+    <a onclick="openModal('infraestructura')"> Infraestructura</a>
+    <a onclick="openModal('convenios')"> Convenios</a>
+    <a onclick="openModal('contacto')"> Contacto</a>
   </nav>
 </div>
 
-<!-- Contenedor principal con título y fondo -->
 <div id="animation-container">
+  <canvas id="escudoCanvas"></canvas>
   <div class="titulo-box">
     <h1>Instituto Técnico "PIO XII"</h1>
     <p>Educación Técnica para el Futuro</p>
-    <a href="#nosotros" class="boton-recorrido">Recorrido 3D</a>
+    <a href="#" class="boton-recorrido" onclick="mostrarRecorrido3D()">Recorrido 3D</a>
   </div>
 </div>
 
-<!-- Secciones -->
-<section id="nosotros">
-  <h2>Nosotros</h2>
-  <p>El Instituto Técnico PIO XII forma profesionales técnicos con ética, responsabilidad y alto nivel académico, preparados para enfrentar los desafíos del futuro.</p>
-</section>
+<div id="recorrido3D">
+  <button id="boton-volver" onclick="volverAlInicio()">Volver al Inicio</button>
+  <div class="loading-indicator" id="loadingIndicator">Cargando modelo 3D...</div>
+  <div class="controls-info">Usa el ratón para mover la cámara: Click izquierdo para rotar, Rueda para zoom, Click derecho para pan</div>
+  <div class="model-selector">
+    <button class="model-btn" onclick="cargarModelo('edificio')">Edificio</button>
+    <button class="model-btn" onclick="cargarModelo('escuela')">Aguila</button>
+    <button class="model-btn active" onclick="cargarModelo('aguila')">Rector</button>
+  </div>
+</div>
 
-<section id="galeria">
-  <h2>Galería</h2>
-  <p>Aquí podrás ver imágenes de nuestros talleres, aulas y actividades académicas (próximamente).</p>
-</section>
+<!-- Modales -->
+<div id="modal-informacion" class="modal-overlay">
+  <div class="modal-content informacion">
+    <div class="modal-header">
+      <div class="modal-title">ℹ️ Información</div>
+      <button class="modal-close" onclick="closeModal('informacion')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Ejemplo de cómo agregar una imagen - reemplaza la URL con tu imagen -->
+      <div class="modal-imagen-container">
+        <img src="informacion.webp" alt="Imagen del Instituto" class="modal-imagen">
+        <p class="modal-imagen-descripcion">Vista frontal del Instituto Técnico PIO XII</p>
+      </div>
+      
+      <p>El Instituto Técnico Pío XII en Llallagua, Bolivia, es una institución de educación superior que ofrece carreras técnicas de alta calidad.</p>
+      
+      <h3>🏛️ Nuestra Historia</h3>
+      <p>Fundado con el compromiso de brindar educación técnica de excelencia, nuestro instituto se ha consolidado como referente en la formación de profesionales técnicos en la región de Potosí.</p>
+      
+      <h3>🎯 Misión</h3>
+      <p>Formar profesionales técnicos competentes, con valores éticos y responsabilidad social, contribuyendo al desarrollo tecnológico y productivo de Bolivia.</p>
+      
+      <h3>🔮 Visión</h3>
+      <p>Ser la institución líder en educación técnica superior en la región, reconocida por la calidad de nuestros egresados y nuestro aporte al desarrollo nacional.</p>
+    </div>
+  </div>
+</div>
 
-<section id="mision">
-  <h2>Misión y Visión</h2>
-  <p><strong>Misión:</strong> Brindar formación técnica integral, innovadora y comprometida con el desarrollo social.</p>
-  <p><strong>Visión:</strong> Ser un referente nacional en educación técnica de calidad.</p>
-</section>
+<div id="modal-carreras" class="modal-overlay">
+  <div class="modal-content carreras">
+    <div class="modal-header">
+      <div class="modal-title">🎓 Carreras</div>
+      <button class="modal-close" onclick="closeModal('carreras')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Ejemplo de imagen para carreras -->
+      <div class="modal-imagen-container">
+        <img src="contaduria.jpg" alt="Carreras técnicas" class="modal-imagen">
+        <p class="modal-imagen-descripcion">Nuestros estudiantes en los laboratorios de práctica</p>
+      </div>
+      
+      <p>Ofrecemos formación técnica especializada en tres áreas estratégicas:</p>
+      
+      <h3>💼 Contaduría Pública</h3>
+      <p><strong>Duración:</strong> 3 años<br>
+      <strong>Modalidad:</strong> Presencial<br>
+      <strong>Perfil del egresado:</strong> Profesional capacitado para el registro, análisis e interpretación de la información contable y financiera.</p>
+      <!-- Ejemplo de imagen para carreras -->
+      <div class="modal-imagen-container">
+        <img src="sistemas.webp" alt="Carreras técnicas" class="modal-imagen">
+        <p class="modal-imagen-descripcion">Nuestros estudiantes en los laboratorios de práctica</p>
+      </div>
+      <h3>💻 Sistemas Informáticos</h3>
+      <p><strong>Duración:</strong> 3 años<br>
+      <strong>Modalidad:</strong> Presencial<br>
+      <strong>Perfil del egresado:</strong> Especialista en desarrollo de software, administración de sistemas and soporte técnico.</p>
+      <!-- Ejemplo de imagen para carreras -->
+      <div class="modal-imagen-container">
+        <img src="secretariado.jpeg" alt="Carreras técnicas" class="modal-imagen">
+        <p class="modal-imagen-descripcion">Nuestros estudiantes en los laboratorios de práctica</p>
+      </div>
+      <h3>📋 Secretariado Ejecutivo</h3>
+      <p><strong>Duración:</strong> 2 años<br>
+      <strong>Modalidad:</strong> Presencial<br>
+      <strong>Perfil del egresado:</strong> Profesional en gestión administrativa y comunicación empresarial.</p>
+      
+      <h3>📝 Requisitos de Admisión</h3>
+      <ul>
+        <li>Diploma de Bachiller</li>
+        <li>Certificado de nacimiento</li>
+        <li>Cédula de identidad</li>
+        <li>Fotografías 4x4</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-<section id="contacto">
-  <h2>Contacto</h2>
-  <p>Dirección: Llallagua, Potosí, Bolivia</p>
-  <p>Email: contacto@pioxii.edu.bo</p>
-  <p>Teléfono: +591 67812345</p>
-</section>
+<div id="modal-infraestructura" class="modal-overlay">
+  <div class="modal-content infraestructura">
+    <div class="modal-header">
+      <div class="modal-title">🏢 Infraestructura</div>
+      <button class="modal-close" onclick="closeModal('infraestructura')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Ejemplo de imagen para infraestructura -->
+      <div class="modal-imagen-container">
+        <img src="ins.png" alt="Instalaciones del Instituto" class="modal-imagen">
+        <p class="modal-imagen-descripcion">Nuestras modernas instalaciones educativas</p>
+      </div>
+      
+      <h3>🏗️ Instalaciones Modernas</h3>
+      <p>Contamos con nueva infraestructura y equipamiento de última generación, fruto de una inversión significativa para brindar un aprendizaje moderno y de calidad.</p>
+      
+      <h3>🖥️ Laboratorios Especializados</h3>
+      <ul>
+        <li><strong>Laboratorio de Computación:</strong> 30 estaciones de trabajo con software actualizado</li>
+        <li><strong>Laboratorio de Contabilidad:</strong> Simuladores de gestión empresarial</li>
+        <li><strong>Aulas Multimedia:</strong> Equipadas con proyectores y sistema de audio</li>
+      </ul>
+      
+      <h3>📚 Biblioteca y Recursos</h3>
+      <p>Biblioteca especializada con más de 2,000 volúmenes, acceso a bases de datos digitales y espacios de estudio individual y grupal.</p>
+      
+      <h3>🌐 Conectividad</h3>
+      <p>Internet de alta velocidad en todas las instalaciones, red WiFi para estudiantes y plataforma virtual de aprendizaje.</p>
+      
+      <h3>♿ Accesibilidad</h3>
+      <p>Instalaciones adaptadas para personas con movilidad reducida, cumpliendo con estándares de accesibilidad universal.</p>
+    </div>
+  </div>
+</div>
 
-<!-- Pie de página -->
-<footer>
-  &copy; 2025 Instituto Técnico PIO XII - Todos los derechos reservados
-</footer>
+<div id="modal-convenios" class="modal-overlay">
+  <div class="modal-content convenios">
+    <div class="modal-header">
+      <div class="modal-title">🤝 Convenios</div>
+      <button class="modal-close" onclick="closeModal('convenios')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Ejemplo de imagen para convenios -->
+      <div class="modal-imagen-container">
+        <img src="convenio.webp" alt="Convenios del Instituto" class="modal-imagen">
+        <p class="modal-imagen-descripcion">Firma de convenios con instituciones colaboradoras</p>
+      </div>
+      
+      <h3>🏛️ Convenios Interinstitucionales</h3>
+      <p>Hemos firmado convenios estratégicos para promover el desarrollo educativo en la región y fortalecer las oportunidades para nuestros estudiantes.</p>
+      
+      <h3>🏢 Empresas Colaboradoras</h3>
+      <ul>
+        <li><strong>Sector Minero:</strong> Prácticas profesionales en empresas mineras locales</li>
+        <li><strong>Sector Público:</strong> Convenios con alcaldías y gobernación</li>
+        <li><strong>Sector Privado:</strong> Empresas de contabilidad y sistemas</li>
+      </ul>
+      
+      <h3>🎓 Universidades Aliadas</h3>
+      <p>Convenios de articulación académica que permiten a nuestros egresados continuar estudios superiores con reconocimiento de materias.</p>
+      
+      <h3>🌍 Programas de Intercambio</h3>
+      <p>Oportunidades de intercambio estudiantil y docente con instituciones de Argentina, Chile y Perú.</p>
+      
+      <h3>💼 Bolsa de Trabajo</h3>
+      <p>Red de empleadores que facilita la inserción laboral de nuestros egresados en el mercado regional y nacional.</p>
+    </div>
+  </div>
+</div>
 
-<!-- Animación Three.js -->
+<div id="modal-contacto" class="modal-overlay">
+  <div class="modal-content contacto">
+    <div class="modal-header">
+      <div class="modal-title">📞 Contacto</div>
+      <button class="modal-close" onclick="closeModal('contacto')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- Ejemplo de imagen para contacto -->
+      <div class="modal-imagen-container">
+        <img src="gps.png" alt="Ubicación del Instituto" class="modal-imagen">
+        <p class="modal-imagen-descripcion">Te esperamos en nuestras instalaciones</p>
+      </div>
+      
+      <h3>📍 Ubicación</h3>
+      <p><strong>Dirección:</strong> Avenida Principal s/n, Llallagua<br>
+      <strong>Provincia:</strong> Bustillo<br>
+      <strong>Departamento:</strong> Potosí, Bolivia</p>
+      
+      <h3>📱 Información de Contacto</h3>
+      <p><strong>Teléfono Principal:</strong> +591 2-642-3456<br>
+      <strong>WhatsApp:</strong> +591 678-12345<br>
+      <strong>Email Institucional:</strong> contacto@pioxii.edu.bo<br>
+      <strong>Email Admisiones:</strong> admisiones@pioxii.edu.bo</p>
+      
+      <h3>🕐 Horarios de Atención</h3>
+      <p><strong>Lunes a Viernes:</strong> 8:00 - 18:00<br>
+      <strong>Sábados:</strong> 8:00 - 12:00<br>
+      <strong>Domingos:</strong> Cerrado</p>
+      
+      <h3>🌐 Redes Sociales</h3>
+      <p><strong>Facebook:</strong> Instituto Técnico PIO XII<br>
+      <strong>Instagram:</strong> @pioxii_oficial<br>
+      <strong>YouTube:</strong> Instituto PIO XII</p>
+      
+      <h3>🚌 Cómo Llegar</h3>
+      <p>Desde la plaza principal de Llallagua, tomar la Avenida Principal hacia el norte. El instituto se encuentra a 5 cuadras, lado derecho, edificio de dos pisos con fachada azul.</p>
+    </div>
+  </div>
+</div>
+
+<footer>&copy; 2025 Instituto Técnico PIO XII - Todos los derechos reservados</footer>
+
 <script>
-  let scene, camera, renderer, platform;
+  
+let scene, camera, renderer, controls, edificioGroup, ventanaAnimada;
+let modeloActual = null; // Para controlar el modelo actual
 
-  function crearPlataforma() {
-    const geometry = new THREE.BoxGeometry(5, 0.2, 5);
-    const material = new THREE.MeshPhongMaterial({ color: 0x3498db });
-    platform = new THREE.Mesh(geometry, material);
-    platform.position.y = -1;
-    scene.add(platform);
+// === Sistema de Modales ===
+function openModal(modalId) {
+  const modal = document.getElementById(`modal-${modalId}`);
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(`modal-${modalId}`);
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto'; // Restaurar scroll del body
+  }
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-overlay')) {
+    const modalId = e.target.id.replace('modal-', '');
+    closeModal(modalId);
+  }
+});
+
+// Cerrar modal con tecla ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const activeModal = document.querySelector('.modal-overlay.active');
+    if (activeModal) {
+      const modalId = activeModal.id.replace('modal-', '');
+      closeModal(modalId);
+    }
+  }
+});
+
+// === Escudo giratorio con oscilación ===
+let escudoScene, escudoCamera, escudoRenderer, escudoMesh;
+let oscilacionDireccion = 1; // 1 para derecha, -1 para izquierda
+let oscilacionAngulo = 0; // Ángulo actual de oscilación
+const maxOscilacion = 0.2; // Máximo ángulo de oscilación en radianes
+
+function initEscudo() {
+  escudoScene = new THREE.Scene();
+  escudoCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+  escudoCamera.position.z = 3;
+
+  escudoRenderer = new THREE.WebGLRenderer({ 
+    canvas: document.getElementById("escudoCanvas"), 
+    alpha: true, 
+    antialias: true 
+  });
+  
+  // Tamaño más pequeño para el escudo en la esquina
+  escudoRenderer.setSize(300, 300);
+
+  const loader = new THREE.TextureLoader();
+  const texture = loader.load("https://cdn.glitch.global/e4e5328a-6ea7-44c3-8645-7b8bdede761c/escudo.png?v=1751781706276");
+  const geometry = new THREE.CircleGeometry(1, 64);
+  const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+  escudoMesh = new THREE.Mesh(geometry, material);
+  escudoScene.add(escudoMesh);
+  animateEscudo();
+}
+
+function animateEscudo() {
+  requestAnimationFrame(animateEscudo);
+  
+  // Oscilación suave de izquierda a derecha
+  if (oscilacionDireccion === 1) {
+    oscilacionAngulo += 0.01;
+    if (oscilacionAngulo >= maxOscilacion) {
+      oscilacionDireccion = -1;
+    }
+  } else {
+    oscilacionAngulo -= 0.01;
+    if (oscilacionAngulo <= -maxOscilacion) {
+      oscilacionDireccion = 1;
+    }
+  }
+  
+  if (escudoMesh) escudoMesh.rotation.y = oscilacionAngulo;
+  escudoRenderer.render(escudoScene, escudoCamera);
+}
+
+// === Función para cargar modelos GLB ===
+function push_modelGLB_not_animed(posx=0, posy=0, posz=0, url, sizeX=1, sizeY=1, sizeZ=1, rotx=0, roty=0, rotz=0) {
+  // Mostrar indicador de carga
+  document.getElementById('loadingIndicator').style.display = 'block';
+  
+  const loader = new THREE.GLTFLoader();
+  loader.load(url, function(gltf) {
+    // Ocultar indicador de carga
+    document.getElementById('loadingIndicator').style.display = 'none';
+    
+    // Eliminar modelo anterior si existe
+    if (modeloActual) {
+      scene.remove(modeloActual);
+    }
+    
+    const model = gltf.scene;
+    
+    // Crear un grupo para centrar y rotar correctamente
+    const modelGroup = new THREE.Group();
+    
+    // Calcular el centro del bounding box y centrar el modelo
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    
+    // Mover el modelo para centrarlo en el origen del grupo
+    model.position.sub(center);
+    
+    // Añadir el modelo centrado al grupo
+    modelGroup.add(model);
+    
+    // Aplicar transformaciones al GRUPO, no al modelo individual
+    modelGroup.scale.set(sizeX, sizeY, sizeZ);
+    modelGroup.rotation.set(rotx, roty, rotz);
+    modelGroup.position.set(posx, posy, posz);
+    
+    // Enable shadows
+    model.traverse(function(child) {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    scene.add(modelGroup);
+    modeloActual = modelGroup;
+    
+    // Ajustar la cámara para enfocar el nuevo modelo
+    ajustarCamaraAlModelo(modelGroup);
+  }, function(progress) {
+    // Actualizar progreso de carga
+    const percentComplete = (progress.loaded / progress.total) * 100;
+    document.getElementById('loadingIndicator').textContent = `Cargando modelo 3D... ${Math.round(percentComplete)}%`;
+  }, function(error) {
+    console.error('Error cargando GLB:', error);
+    document.getElementById('loadingIndicator').style.display = 'none';
+    alert('Error al cargar el modelo 3D. Asegúrate de que el archivo existe en la ubicación correcta.');
+  });
+}
+
+// Función para ajustar la cámara al modelo cargado
+function ajustarCamaraAlModelo(modelGroup) {
+  const box = new THREE.Box3().setFromObject(modelGroup);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  
+  // Calcular la distancia necesaria para que el modelo sea visible completamente
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const fov = camera.fov * (Math.PI / 180);
+  let cameraZ = Math.abs(maxDim / (2 * Math.tan(fov / 2))) * 1.5;
+  
+  // Ajustar la posición de la cámara
+  camera.position.set(center.x, center.y, cameraZ);
+  camera.lookAt(center.x, center.y, center.z);
+  
+  // Actualizar los controles
+  controls.target.copy(center);
+  controls.update();
+}
+
+// === Función para cargar diferentes modelos ===
+function cargarModelo(tipo) {
+  // Actualizar botones activos
+  document.querySelectorAll('.model-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.model-btn[onclick="cargarModelo('${tipo}')"]`).classList.add('active');
+  
+  // Cargar modelo según el tipo
+  switch(tipo) {
+    case 'edificio':
+      // Modelo de edificio (puedes reemplazar con tu propia URL)
+      push_modelGLB_not_animed(0, 0, 0, 
+        'institutooo.glb',
+        0.5, 0.5, 0.5, 0, 0, 0);
+      break;
+    case 'escuela':
+      // Modelo de escuela (puedes reemplazar con tu propia URL)
+      push_modelGLB_not_animed(0, 0, 0, 
+        'aguila.glb',
+        1, 1, 1, 0, 0, 0);
+      break;
+    case 'aguila':
+      // Modelo de águila (reemplaza con la URL correcta de tu modelo aguila.glb)
+      push_modelGLB_not_animed(0, 0, 0, 
+        'rector.glb', // Asegúrate de que esta ruta sea correcta
+        1.5, 1.5, 1.5, 0, 0, 0);
+      break;
+    default:
+      crearEdificio(); // Modelo por defecto (edificio creado con primitivas)
+  }
+}
+
+// === Edificio 3D (modelo por defecto) ===
+function crearEdificio() {
+  // Eliminar modelo anterior si existe
+  if (modeloActual) {
+    scene.remove(modeloActual);
+    modeloActual = null;
+  }
+  
+  edificioGroup = new THREE.Group();
+  const loader = new THREE.TextureLoader();
+  const texturaPared = loader.load('https://threejs.org/examples/textures/brick_diffuse.jpg');
+  const texturaPlataforma = loader.load('https://threejs.org/examples/textures/wood.jpg');
+  const texturaEscalon = loader.load('https://threejs.org/examples/textures/stone.jpg');
+  const texturaVentana = loader.load('https://threejs.org/examples/textures/metal003_diffuse.jpg');
+
+  const matPared = new THREE.MeshStandardMaterial({ map: texturaPared });
+  const matPlataforma = new THREE.MeshStandardMaterial({ map: texturaPlataforma });
+  const matEscalon = new THREE.MeshStandardMaterial({ map: texturaEscalon });
+  const matVentana = new THREE.MeshStandardMaterial({ map: texturaVentana });
+  const matVidrioPuerta = new THREE.MeshStandardMaterial({ color: 0xadd8e6, transparent: true, opacity: 0.5 });
+
+  const edificio = new THREE.Mesh(new THREE.BoxGeometry(10, 12, 4), matPared);
+  edificio.position.set(0, -1, 0);
+  edificioGroup.add(edificio);
+
+  const plataforma = new THREE.Mesh(new THREE.BoxGeometry(12, 0.2, 10), matPlataforma);
+  plataforma.position.set(0, -7, 0);
+  edificioGroup.add(plataforma);
+
+  const matParedAzul = new THREE.MeshStandardMaterial({ color: 0x87ceeb });
+  const paredIzq = new THREE.Mesh(new THREE.BoxGeometry(2, 12, 0.2), matParedAzul);
+  paredIzq.position.set(-2.8, -1, 2.1);
+  const paredDer = new THREE.Mesh(new THREE.BoxGeometry(2, 12, 0.2), matParedAzul);
+  paredDer.position.set(2.8, -1, 2.1);
+  edificioGroup.add(paredIzq);
+  edificioGroup.add(paredDer);
+
+  ventanaAnimada = new THREE.Mesh(new THREE.BoxGeometry(1.5, 12, 0.1), matVentana);
+  ventanaAnimada.position.set(0, -1, 2.05);
+  edificioGroup.add(ventanaAnimada);
+
+  const puertaVidrio = new THREE.Mesh(new THREE.BoxGeometry(1, 2.5, 0.05), matVidrioPuerta);
+  puertaVidrio.position.set(0, -5.75, 2.1);
+  edificioGroup.add(puertaVidrio);
+
+  for (let i = 0; i < 3; i++) {
+    const escalon = new THREE.Mesh(new THREE.BoxGeometry(3 - i * 0.3, 0.2, 1), matEscalon);
+    escalon.position.set(0, -5.9 + 0.1 * i, 2.6 + i * 0.3);
+    edificioGroup.add(escalon);
+  }
+  for (let i = 0; i < 4; i++) {
+    const ventana = new THREE.Mesh(new THREE.BoxGeometry(8, 0.5, 0.05), matVentana);
+    ventana.position.set(0, -4 + i * 3, -2.05);
+    edificioGroup.add(ventana);
   }
 
-  function init() {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(5, 5, 5);
-    camera.lookAt(0, 0, 0);
+  scene.add(edificioGroup);
+  modeloActual = edificioGroup;
+  
+  // Ajustar la cámara al edificio
+  ajustarCamaraAlModelo(edificioGroup);
+}
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById("animation-container").appendChild(renderer.domElement);
+function mostrarRecorrido3D() {
+  document.getElementById("animation-container").style.display = "none";
+  document.getElementById("recorrido3D").style.display = "block";
+  if (!renderer) init();
+}
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 10, 7.5);
-    scene.add(directionalLight);
-
-    crearPlataforma();
-    animate();
+function volverAlInicio() {
+  document.getElementById("recorrido3D").style.display = "none";
+  document.getElementById("animation-container").style.display = "block";
+  if (renderer) {
+    renderer.domElement.remove();
+    renderer = null;
+    scene = null;
+    camera = null;
+    controls = null;
+    modeloActual = null;
   }
+}
 
-  function animate() {
-    requestAnimationFrame(animate);
-    platform.rotation.y += 0.005;
-    renderer.render(scene, camera);
-  }
+function init() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x2f4f4f); // Fondo azul claro
+  
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 5, 15); // Posición inicial más cercana
 
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+  renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  document.getElementById("recorrido3D").appendChild(renderer.domElement);
+
+  // Añadir controles de órbita
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; // Suavizado de movimiento
+  controls.dampingFactor = 0.05;
+  controls.screenSpacePanning = false;
+  controls.minDistance = 1;
+  controls.maxDistance = 50;
+
+  // Iluminación
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(5, 10, 7.5);
+  dirLight.castShadow = true;
+  scene.add(dirLight);
+  
+  // Añadir luz adicional para mejor iluminación
+  const light = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+  light.position.set(0, 20, 0);
+  scene.add(light);
+  
+  // Cargar modelo por defecto (águila)
+  cargarModelo('aguila');
+  
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (controls) controls.update();
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', ()=>{
+  if(camera && renderer){
+    camera.aspect = window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  init();
-</script>
-
-<!-- Script para cambiar fondo automáticamente -->
-<script>
-  const fondo = document.getElementById('animation-container');
-  const imagenes = ['la1.jpeg', 'la2.jpeg', 'la3.jpeg']; // Agrega tus imágenes aquí
-  let indice = 0;
-
-  fondo.style.backgroundImage = `url('${imagenes[indice]}')`;
-
-  function cambiarFondo() {
-    indice = (indice + 1) % imagenes.length;
-    fondo.style.backgroundImage = `url('${imagenes[indice]}')`;
   }
+});
 
-  setInterval(cambiarFondo, 6000); // Cambio a 4 segundos
+// Fondo dinámico
+const fondo = document.getElementById('animation-container');
+const imagenes = [
+  'https://cdn.glitch.global/e4e5328a-6ea7-44c3-8645-7b8bdede761c/la1.jpeg?v=1751782017508',
+  'https://cdn.glitch.global/e4e5328a-6ea7-44c3-8645-7b8bdede761c/la2.jpeg?v=1751782075853',
+  'https://cdn.glitch.global/e4e5328a-6ea7-44c3-8645-7b8bdede761c/la3.jpeg?v=1751782100261'
+];
+let indice = 0;
+fondo.style.backgroundImage = `url('${imagenes[indice]}')`;
+setInterval(()=>{
+  indice = (indice+1)%imagenes.length;
+  fondo.style.backgroundImage = `url('${imagenes[indice]}')`;
+},6000);
+
+initEscudo();
 </script>
 
 </body>
